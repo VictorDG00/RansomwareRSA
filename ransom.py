@@ -28,4 +28,3 @@ for character in cript:
         position = (position + rotation) % 100
         decript = decript + alfabet[position]
     print (decript)
-    
