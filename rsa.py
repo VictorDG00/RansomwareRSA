@@ -9,22 +9,35 @@ Alunos
 Victor Dias Gonçalves - RM88582
 Filipe Grahl - RM86663
 '''
-
 # Modules:
 import random
 
-# criar 2 numero primos
-def gerarNP():
-    primos = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
-    79, 83, 89, 97, 101, 103]
-    return random.choice(primos)
+# Calcula o totiente do numero primo
+def totient(number): 
+    if(prime(number)):
+        return number-1
+    else:
+        return False
 
-# Totiente de euler
-def phi(p, q): 
-    return (p - 1) * (q - 1)
+# Verifica se um numero gerado é primo
+def prime(n):
+    if (n <= 1):
+        return False
+    if (n <= 3):
+        return True
 
-# Gerar E
-def gerarE(n):
+    if (n%2 == 0 or n%3 == 0):
+        return False
+
+    i = 5
+    while(i * i <= n):
+        if (n%i == 0 or n%(i+2) == 0):
+           return False
+        i+=6
+    return True
+
+# Gera um numero aleatório E
+def geraE(num): 
     def mdc(n1,n2):
         rest = 1
         while(n2 != 0):
@@ -34,37 +47,45 @@ def gerarE(n):
         return n1
 
     while True:
-        e = random.randrange(2,n) 
-        if(mdc(n,e) == 1):
+        e = random.randrange(2,num) 
+        if(mdc(num,e) == 1):
             return e
 
-# Calculo do modulo
-def mod(a,b): 
+# Gera um numero primo aleatório
+def geraNPrimo(): # gera p e q
+    while True:
+        x=random.randrange(1,100) # define o range dos primos
+        if(prime(x)==True):
+            return x
+
+# Função modular entre dois números
+def mod(a,b):
     if(a<b):
         return a
     else:
         c=a%b
         return c
 
-# Criptografa o texto
-def criptografia(text,e,n):
-    tam = len(text)
+# Cifra um texto
+def Criptografia(words,e,n): # pega a palavra para criptografar
+    tam = len(words)
     i = 0
     lista = []
     while(i < tam):
-        letra = text[i]
-        k = ord(letra)
+        letter = words[i]
+        k = ord(letter)
         k = k**e
         d = mod(k,n)
         lista.append(d)
         i += 1
     return lista
-    
-# Decriptografia 
-def decriptografa(cifra,n,d):
+
+# Descriptografa um texto criptografado
+def descifra(cifra,n,d):
     lista = []
     i = 0
     tamanho = len(cifra)
+    # texto=cifra ^ d mod n
     while i < tamanho:
         result = cifra[i]**d
         texto = mod(result,n)
@@ -73,26 +94,27 @@ def decriptografa(cifra,n,d):
         i += 1
     return lista
 
-def priKey(phi,e):
+# Calcula a chave privada
+def calculate_private_key(toti,e):
     d = 0
-    while(mod(d*e,phi)!=1):
+    while(mod(d*e,toti)!=1):
         d += 1
     return d
 
 if __name__=='__main__':
     text = input("Insert message: ")
-    p = gerarNP()
-    q = gerarNP()
-    n = p*q
-    on = phi(p, q)
-    e = gerarE(n)
-    d = 1 / e
-    pubKey = (n, e)
-        
-    print('Your public key:', pubKey)
-    textoCript = criptografia(text,e,n)
-    print('Your encrypted message:', textoCript)
-    d = priKey(on, e)
+    p = geraNPrimo() # gera P
+    q = geraNPrimo() # gera Q
+    n = p*q # calcula N
+    h = totient(p) # Calcula o totiente de P
+    l = totient(q) # Calcula o totiente de Q
+    N = h*l # Calcula o totiente N
+    e = geraE(N) # generate E
+    public_key = (n, e)
+    print('Your public key:', public_key)
+    textoCifrado = Criptografia(text,e,n)
+    print('Your encrypted message:', textoCifrado)
+    d = calculate_private_key(N,e)
     print('Your private key is:', d)
-    textoDecript = decriptografa(textoCript,n,d)
-    print('your original message:', textoDecript)
+    textoOriginal = descifra(textoCifrado,n,d)
+    print('your original message:', textoOriginal)
